@@ -22,6 +22,7 @@ $Person_ID = '???????';
 $Status = 'Active';
 // check for escape characters that might break our database, variable names may be incorrect, not sure if it wants name or id, example looks like name
 // it's not liking any of this, example is from tutorial republic
+// Further playing, it's not passing the vallues from the html form
 $FName = mysqli_real_escape_string($link, $_REQUEST['first_name']);
 $LName = mysqli_real_escape_string($link, $_REQUEST['last_name']);
 $Street = mysqli_real_escape_string($link, $_REQUEST['street']);
