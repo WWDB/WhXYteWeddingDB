@@ -6,12 +6,17 @@ CommiteeView.php
 This is the backend to the tableView.js please take a look at TestView.php for an example of its use
 
 What the CommiteeView does
-    The commiteeView class serves as a portal between some table or view in the database
-    and a webpage running tableView.js or itemView.js
+The commiteeView class serves as a portal between some table or view in the database
+and a webpage running tableView.js or itemView.js
 
-    Bolth the tableView.js and itemView.js classes dynamicly generate forms and tables from data passed from CommiteeView class
+Bolth the tableView.js and itemView.js classes dynamicly generate forms and tables from data passed from CommiteeView class
 
-    
+
+TODO: Add funcionality to take item_edit requests from a page containing ItemView.js
+TODO: Add funcionality to take item_add requests from a page containing ItemView.js and possibly offload add SQL querys to a user defined function which will be passed into the constructor
+TODO: Add SQL injection protection
+TODO: Add XSS injection protection
+
 
 */
 class CommiteeView {
@@ -33,9 +38,10 @@ class CommiteeView {
     
     //When the user clicks the MORE button next to a record, a seperate page will show ALL the columns, including the hidden columns.
 
+    private $writableColumns;//Used to restrict what the user can edit. A good example of somthing we do NOT want the user to edit is primary keys
+    
+    //Another example is restricting the event commitee from changing the ammount of tickets that was purchused before the event, and requesting the guest pay for their tickets again.
 
-
-    private $writableColumns;
 
 
     
@@ -69,6 +75,9 @@ class CommiteeView {
         }
         return $result;
     }
+
+
+    //Gets the data type of all the columns in the view. Can be used for serverside form validation.
     private function getTableDatatypes(){
         $result=$this->applyQuery("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='".$this->view_name."'");
         $rows = array();
@@ -81,7 +90,7 @@ class CommiteeView {
         return $rows;
     }
     //applys a select * from <VIEW_NAME> and returns the results a a .json
-    //containing all the columns
+    //containing all the columns and rows. Used to help populate TableView.js instances.
     private function applyViewTable(){
         $result=$this->applyQuery("SELECT * FROM ".$this->view_name);
         header('Content-Type: application/json');
@@ -103,22 +112,36 @@ class CommiteeView {
     }
 
     //Returns a json containing all the attributes of a specific row forom the view
-    //
+    //Used to help populate ItemView.js instances
     private function applyViewItem($key){
         $result=$this->applyQuery("SELECT * FROM ".$this->view_name." WHERE ".$this->primary_key."=".$key);
         $r = mysqli_fetch_assoc($result);
         header('Content-Type: application/json');
         echo '{ "item":';
         print json_encode($r);
-        echo ',"datatypes": ';
+        echo '}'
+        
+    }
+
+    //Used by ItemView.js to display the right form types when editing or adding an item
+    private function sendDataTypes(){
+        header('Content-Type: application/json');
+        echo '{"datatypes": ';
         print json_encode($this->datatypes);
         echo ',"writable": ';
         print json_encode($this->writableColumns);
         echo "}";
-        
     }
-    
-    
+
+    //Used by itemView.js when applying a change to a row
+    private function applyEdit($request){
+
+    }
+
+    //Used by itemView.js when adding to a row
+    private function applyAdd($request){
+
+    }
 
     public function process_request($request){
         if($request["action"]=="view_table"){
@@ -126,9 +149,9 @@ class CommiteeView {
         }elseif($request["action"]=="view_item"){
             $this->applyViewItem($request["key"]);
         }elseif($request["action"]=="get_datatypes"){
-            $this->applyViewItem($request["key"]);
+            $this->sendDataTypes()
         }elseif($request["action"]=="apply_edit"){
-
+            $this->applyEdit($request)
         }elseif($request["action"]=="apply_add"){
 
         }else{
