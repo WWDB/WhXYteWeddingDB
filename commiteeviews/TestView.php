@@ -19,7 +19,7 @@
 //TODO: add user/session verification here so that only authorized users can invoke functions of the CommiteeView
 
 
-require_once 'TableView.php';
+require_once 'CommiteeView.php';
 /*CONNECTION VARIBLES
     used to connect to the database
 */

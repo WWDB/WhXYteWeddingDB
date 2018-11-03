@@ -125,7 +125,8 @@ class CommiteeView {
             $this->applyViewTable();
         }elseif($request["action"]=="view_item"){
             $this->applyViewItem($request["key"]);
-        
+        }elseif($request["action"]=="get_datatypes"){
+            $this->applyViewItem($request["key"]);
         }elseif($request["action"]=="apply_edit"){
 
         }elseif($request["action"]=="apply_add"){
