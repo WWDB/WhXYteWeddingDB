@@ -1,0 +1,103 @@
+<html lang = "en">
+<head>
+<meta charset = "UTF-8">
+<title> WhXYte Wedding Sponsor Registration </title>
+</head>
+
+<body>
+<!-- TODO: add div class that will center this text -->
+<h3> Thank you for your interest in sponsoring us! </h3>
+Please enter your contact information and sponsor coordinator will contact you.
+<br><br>
+
+<form action="WWDB_SponsorReg.php" method="post" id="SponsorReg">
+	<p>
+	<!-- company name entry -->
+		<label for="companyName"><span style="color: #ff0000">*</span>Company Name: </label>
+		<input type="text" name="company_name" id="companyName" style="width: 26em;"><br><br>
+	<!-- Street address entry -->
+		<label for="street">Street Address:</label>
+		<input type="text" name="street" id="street" style="width: 28em;">
+		<br><br>
+	<!-- City -->
+		<label for="city"><span style="color: #ff0000">*</span>City:</label>
+		<input type="text" name="city" id="city">
+	<!-- State, needs to be a drop down menu option -->
+		<label for="state"><span style="color: #ff0000">*</span>State:</label>
+		<select name="state">
+			<option value="AL"> AL </option>
+			<option value="AK"> AK </option>
+			<option value="AZ"> AZ </option>
+			<option value="AR"> AR </option>
+			<option value="CA"> CA </option>
+			<option value="CO"> CO </option>
+			<option value="CT"> CT </option>
+			<option value="DC"> DC </option>
+			<option value="DE"> DE </option>
+			<option value="FL"> FL </option>
+			<option value="GA"> GA </option>
+			<option value="HI"> HI </option>
+			<option value="ID"> ID </option>
+			<option value="IL"> IL </option>
+			<option value="IN"> IN </option>
+			<option value="IA"> IA </option>
+			<option value="KS"> KS </option>
+			<option value="KY"> KY </option>
+			<option value="LA"> LA </option>
+			<option value="MD"> MD </option>
+			<option value="ME"> ME </option>
+			<option value="MA"> MA </option>
+			<option value="MI"> MI </option>
+			<option value="MN"> MN </option>
+			<option value="MS"> MS </option>
+			<option value="MO"> MO </option>
+			<option value="MT"> MT </option>
+			<option value="NE"> NE </option>
+			<option value="NJ"> NJ </option>
+			<option value="NM"> NM </option>
+			<option value="NY"> NY </option>
+			<option value="NC"> NC </option>
+			<option value="ND"> ND </option>
+			<option value="OH"> OH </option>
+			<option value="OK"> OK </option>
+			<option value="OR"> OR </option>
+			<option value="PA"> PA </option>
+			<option value="PR"> PR </option>
+			<option value="RI"> RI </option>
+			<option value="SC"> SC </option>
+			<option value="SD"> SD </option>
+			<option value="TN"> TN </option>
+			<option value="TX"> TX </option>
+			<option value="UT"> UT </option>
+			<option value="VT"> VT </option>
+			<option value="VA"> VA </option>
+			<option value="WA"> WA </option>
+			<option value="WV"> WV </option>
+			<option value="WI"> WI </option>
+			<option value="WY"> WY </option>
+		</select>
+	<!-- zip code -->
+		<label for="zipCode"><span style="color: #ff0000">*</span>Zip Code:</label>
+		<input type="text" name="zip" id="zipCode" style="width: 6em;" maxlength="5">  <!-- again we have a format fun. 5 digit zip or 5-4 format -->
+		<br><br>
+	<!-- company contact name -->	
+		<label for="contact"><span style="color: #ff0000">*</span>Contact Name:</label>
+		<input type="text" name="contact" id="contact" style="width: 27em;">  
+		<br><br>
+	<!-- email address -->
+		<label for="email"><span style="color: #ff0000">*</span>Email:</label>
+		<input type="text" name="email" id="email" style="width: 30em;"><br><br>
+	<!-- contact phone number -->
+	<!-- phone number -->
+		<label for="phoneNum"><span style="color: #ff0000">*</span>Phone Number:</label>
+		<input type="text" name="phone_num" id="phoneNum">   (303)555-1234  <!-- What format do we want to sanitize? And example before, after, or in text box? -->
+		<br><br>
+	
+	Items marked with <span style="color: #ff0000">*</span> are required.
+	<br><br>
+	<!-- and a way to submit it all -->
+	<input type="submit" value="Submit">
+	
+</form>
+</body>
+</html>	

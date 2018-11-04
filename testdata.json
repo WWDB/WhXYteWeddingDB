@@ -1,0 +1,12 @@
+
+
+
+{
+"rows":[
+        {"Name":"john smith","Street":"1234 Kulas Light Rd","City":"Gwenborough","State":"CO","Zip":"3213","Email":"jsmith@gmail.com","Phone":"123456789"},
+        {"Name":"Ervin Howell","Street":"4313 Victor Plains Ave","City":"Wisokyburgh","State":"IN","Zip":"31253","Email":"Eraa12@yahoo.com","Phone":"2142152"},
+        {"Name":"Clementine Bauch","Street":"8888 Hoeger Mall Trl","City":"Parker","State":"CO","Zip":"80134","Email":"Clementine.Bauch@gmail.com","Phone":"31231333"},
+        {"Name":"Dennis Schulist","Street":"3212 Dayna Park Rd","City":"Denver","State":"CO","Zip":"21313","Email":"Ds327@yahoo.com","Phone":"312312312"}
+]
+}
+

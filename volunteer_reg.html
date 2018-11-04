@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+<meta charset = "UTF-8">
+<title> WhXYte Wedding Volunteer Registration </title>
+</head>
+
+<body>
+<h3> Contact information </h3>
+<form action = "WWDB_VolReg.php" method = "post" id="VolunteerReg">
+	<p>
+	<!-- first name entry -->
+		<label for="first_name"><span style="color: #ff0000">*</span>First Name: </label>
+		<input type="text" name="first_name" id="first_name">
+	<!-- Last name entry -->	
+		<label for="last_name"><span style="color: #ff0000">*</span>Last Name: </label>
+		<input type="text" name="last_name" id="last_name">
+		<br><br>
+	<!-- phone number -->
+		<label for="phoneNum">Phone Number: </label>
+		<input type="text" name="phone_num" id="phoneNum"  maxlength="13">   (303)555-1234  <!-- What format do we want to sanitize? And example before, after, or in text box? -->
+		<br><br>
+	<!-- email address-->
+		<label for="email"><span style="color: #ff0000">*</span>Email: </label>
+		<input type="text" name="email" id="email" style="width: 30em;"> <br><br>
+		Items marked with <span style="color: #ff0000">*</span> are required.
+		<br><br><br>
+		<!-- Volunteer roles
+		Debate in class about this but for now, just a specified drop down list. Later this will all need to 
+		be a php file and these needs to be grabbed from a table that the volunteer committee can add and delete from 
+		My opinion: make a table of the roles and the volunteer will be assigned the role ID number. The Role will then go from open to closed in the role table-->
+		Please select a role from the drop down menu
+		<label for="volunteer_role"><span style="color: #ff0000">*</span>Volunteer role: </label>
+		<select name="volunteer_role">
+			<option value="Doorman"> Doorman 6:00 to 10:00pm </option>
+			<option value="Server"> Server 6:00 to 10:00pm</option>
+			<option value="Model"> Model assistant 6:00 to 10:00pm</option>
+			<option value="Bartender"> Bartender  5:00 to 12:00</option>
+		</select>
+	<br><br>
+	<!-- and a way to submit it all -->
+	<input type="submit" value="Submit">
+</form>
+</body>
+</html>	
+		
