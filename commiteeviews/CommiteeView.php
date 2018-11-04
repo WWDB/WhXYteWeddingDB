@@ -74,6 +74,7 @@ class CommiteeView {
         //We insted get them from a query
         
     }
+	
     //connects to the server and applys an sql query
     private function applyQuery($sql){
 
@@ -85,9 +86,13 @@ class CommiteeView {
         //$sql="SELECT * FROM volunteerstest";
         $result=$link->query($sql);
         if(!$result){
-            echo "ERROR: Could not execute $sql.".mysqli_error($link);
-        }
-        return $result;
+			
+            
+			//echo '{"item":{"Error":"ERROR: Could not execute'. $sql." ".mysqli_error($link).'"}}';
+			die('{"item":{"Error":"ERROR: Could not execute'. $sql." ".mysqli_error($link).'"}}');
+        }else{
+        	return $result;
+		}
     }
 
 
@@ -129,11 +134,20 @@ class CommiteeView {
     //Used to help populate ItemView.js instances
     private function applyViewItem($key){
         $result=$this->applyQuery("SELECT * FROM ".$this->view_name." WHERE ".$this->primary_key."=".$key);
+				
+
         $r = mysqli_fetch_assoc($result);
+        
         header('Content-Type: application/json');
+        if($r){
         echo '{ "item":';
         print json_encode($r);
         echo '}';
+        } else{
+            echo '{ "item":';
+            echo '{"Error":"could not find item"}';
+            echo '}';
+        }
         
     }
 
@@ -170,8 +184,8 @@ class CommiteeView {
         }elseif($obj->action=="apply_add"){
 
         }else{
-            echo "Bad request";
-            die("Bad request");
+            
+            die('{"item":{"Error":"Bad Request"}}');
         }
     }
 	

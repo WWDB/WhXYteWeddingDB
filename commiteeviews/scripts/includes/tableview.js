@@ -109,7 +109,7 @@ TableView.prototype.updateTable = function() {
             
            
     }
-    hrow.insertCell()
+    hrow.insertCell().innerHTML="Options"
     var tbody=this.table.createTBody()
 
     //Draw the rows

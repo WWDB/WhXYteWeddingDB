@@ -169,7 +169,7 @@ ItemView.prototype.draw =function(){
 
         break;
         default:
-            this.div.innerHTML="Error, invalid action"
+            this.div.innerHTML="ItemView.js Error, invalid action"
     }
 
     this.div.innerHTML+="<br><a href="+ document.referrer +">Go Back</a>"
@@ -195,12 +195,12 @@ ItemView.prototype.init =function(){
                 this.type_data=JSON.parse(data);
                 this.draw()
             },data=>{
-                this.div.innerHTML="Item Load error: "+data
+                this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify({action:"get_datatypes"})+" <br>Controller URL:"+this.controllerURL
             })
         }
         
         ,data=>{
-            this.div.innerHTML="Item Load error: "+data
+            this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify(this.postData) +"<br> Controller URL:"+this.controllerURL
         })
 
             
