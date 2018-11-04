@@ -20,29 +20,32 @@ The paramaters it accesses are
 
 //Helper function which takes SQL datatypes, enurmenations and sets, and converts them into html input elements.
 //Takes a string like 'int(20) unsigned' or 'varchar(5)' or 'enum('active','inactive') and creates an html <input>, or <select> element based on that datatype
+//Yes I know it is quite messy, 
 function columnType2Input(colType,id,value){
     //get everything before the parens
     primaryType=colType.split("(")[0]
     
     secondaryType=colType.match(/\(([^)]+)\)/)[1]//get the things inside the parens
     teritaryType=colType.split(")")[1]//get everything after the parens
-    //console.log(baseDatatype)
-    //console.log(secondaryType)
-    //console.log(teritaryType)
+    
     switch(primaryType){
         case "int":
+            //Create a number input if its an int, make a min=0 for the number type if its unsigned
             if(teritaryType=="unsigned"){
                 return '<input id='+id+'type="number" min="0" value='+value+'>'
             }
             return '<input id='+id+' type="number" value='+value+'>'
             break;
         case "decimal":
+            //Make a number type that allows 0.01 value increments should be all we need for money related data
             return '<input id='+id+' type=number step=0.01 value='+value+' >'
             break;
         case "varchar":
+            //creates a text input
             return '<input id='+id+' type=text value='+value+'>'
             break;
         case "enum":
+            //Creates a dropdown from the values in the enum
             var html='<select id='+id+'>'
             var options=secondaryType.split(',');
             for(o in options){
@@ -57,6 +60,8 @@ function columnType2Input(colType,id,value){
             return html;
             break;
         case "set":
+        //Creates a dropdown that allows you to select multiple things
+        //TODO: make this an array of checkboxes so it is not a pain to use.
         var html='<select multiple id='+id+'>'
         var options=secondaryType.split(',');
         for(o in options){

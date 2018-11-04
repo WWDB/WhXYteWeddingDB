@@ -105,9 +105,11 @@ TableView.prototype.updateTable = function() {
         
         
         }
+    
             
            
     }
+    hrow.insertCell()
     var tbody=this.table.createTBody()
 
     //Draw the rows
