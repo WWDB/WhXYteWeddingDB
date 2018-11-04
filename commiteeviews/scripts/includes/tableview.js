@@ -86,22 +86,25 @@ TableView.prototype.updateTable = function() {
     curTable=this
 	var cols=Object.keys(this.data.rows[0])
     for(col in cols){
-        var sortButton=document.createElement('button') 
-		
-        sortButton.innerHTML=  cols[col]
+        if(!this.data.hidden.includes(cols[col])){
+            
         
-        sortButton.id=+col+" "+this.divID+"_sortBtn "
+            var sortButton=document.createElement('button') 
+            
+            sortButton.innerHTML=  cols[col]
+            
+            sortButton.id=+col+" "+this.divID+"_sortBtn "
 
-        sortButton.addEventListener("click",function(event){
-			curTable.sortingIndex=parseInt(this.id);
-            curTable.sortbycolumn()
-            //alert(parseInt(this.id))
-        });
-        cell = hrow.insertCell()
-        cell.appendChild(sortButton)
+            sortButton.addEventListener("click",function(event){
+                curTable.sortingIndex=parseInt(this.id);
+                curTable.sortbycolumn()
+                //alert(parseInt(this.id))
+            });
+            cell = hrow.insertCell()
+            cell.appendChild(sortButton)
         
         
-
+        }
             
            
     }
@@ -112,10 +115,23 @@ TableView.prototype.updateTable = function() {
         var htmlRow= tbody.insertRow();
         var row=this.curResults[i]
         //alert(JSON.stringify(tableRows[i]))
+        var key=0
+        
         for(att in row){
-            var cell=htmlRow.insertCell()
-            cell.innerHTML=row[att]
-        }        
+            
+            if(!this.data.hidden.includes(att)){
+
+                var cell=htmlRow.insertCell()
+                cell.innerHTML=row[att]
+            }
+        }
+        var cell=htmlRow.insertCell()
+        var key=row[this.data.key]
+        
+        var MoreLink="<a href='baseEdit.html?curl="+this.controllerURL+"&action=view_item&key="+key+"'>More</a>"
+        var EditLink="<br><a href='baseEdit.html?curl="+this.controllerURL+"&action=edit_item&key="+key+"'>Edit</a>"
+        
+        cell.innerHTML=MoreLink+EditLink  
     }    
 };
 
@@ -151,8 +167,9 @@ TableView.prototype.draw=function(){
     clearButton.innerHTML="Clear"
 	
     this.searchAndAdd.appendChild(clearButton);
-    addButton=document.createElement("button")
+    addButton=document.createElement("a")
     addButton.innerHTML="Add"
+    addButton.href='baseEdit.html'
     this.searchAndAdd.appendChild(addButton);
     this.sortText=document.createTextNode("")
     this.searchAndAdd.appendChild(this.sortText)
@@ -195,7 +212,7 @@ TableView.prototype.init = function() {
         
         //We send a post request to the server
         
-        ajax("POST",this.controllerURL)
+        ajax("POST",this.controllerURL,{action:"view_table"})
         //Once we recieve the server response to our rquest, we draw our table with the data we got
         .then(data=>{
             this.data=JSON.parse(data);

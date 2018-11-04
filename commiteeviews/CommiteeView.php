@@ -9,6 +9,10 @@ What the CommiteeView does
 The commiteeView class serves as a portal between some table or view in the database
 and a webpage running tableView.js or itemView.js
 
+Everything is passed in and out of the CommiteeView via json, this will give us a lot of flexibility in how we design the frontend by giving us an 'api-like' interface between frontend and backend
+
+
+
 Bolth the tableView.js and itemView.js classes dynamicly generate forms and tables from data passed from CommiteeView class
 
 
@@ -18,6 +22,16 @@ TODO: Add SQL injection protection
 TODO: Add XSS injection protection
 
 
+
+For complex views that are created from the join of 2 tables, adding and editing can get a bit ...messy
+Right now my solution is to take in the 2 base tables as input to the constructor, and the key they were joined on.
+
+I am still trying to think of the logic to generate a dropdown when adding, 
+
+I think for most instances it will work just fine
+
+
+NOTE: I just realized that with a dynamicly generated tableView and a dynamicly generated add form and edit form, I am builing a new PHPmyAdmin...
 */
 class CommiteeView {
     
@@ -31,7 +45,6 @@ class CommiteeView {
 
     private $primary_key;//the name of the 
     private $view_name;//the name of the table or view to operate on.
-    private $update_query; 
     private $datatypes;
     private $hiddenColumns;//thease columns are hidden from the user but are still passed to the TableView in the users browser.
     //For example if you dont wanna always show the Person_ID of a person you can put ["Person_ID"] in the constructor as a hidden column
@@ -57,6 +70,7 @@ class CommiteeView {
         $this->password=$password;
         $this->dbname=$dbname;
         $this->datatypes=$this->getTableDatatypes();//We dont need to pass in the data types of the columns
+        
         //We insted get them from a query
         
     }
@@ -79,7 +93,7 @@ class CommiteeView {
 
     //Gets the data type of all the columns in the view. Can be used for serverside form validation.
     private function getTableDatatypes(){
-        $result=$this->applyQuery("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='".$this->view_name."'");
+        $result=$this->applyQuery("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='".$this->view_name."'");
         $rows = array();
    	    while($r = mysqli_fetch_array($result)) {
             $rows[] = $r[0];
@@ -119,7 +133,7 @@ class CommiteeView {
         header('Content-Type: application/json');
         echo '{ "item":';
         print json_encode($r);
-        echo '}'
+        echo '}';
         
     }
 
@@ -143,16 +157,17 @@ class CommiteeView {
 
     }
 
-    public function process_request($request){
-        if($request["action"]=="view_table"){
+    public function process_request($obj){
+        
+        if($obj->action=="view_table"){
             $this->applyViewTable();
-        }elseif($request["action"]=="view_item"){
-            $this->applyViewItem($request["key"]);
-        }elseif($request["action"]=="get_datatypes"){
-            $this->sendDataTypes()
-        }elseif($request["action"]=="apply_edit"){
-            $this->applyEdit($request)
-        }elseif($request["action"]=="apply_add"){
+        }elseif($obj->action=="view_item"){
+            $this->applyViewItem($obj->key);
+        }elseif($obj->action=="get_datatypes"){
+            $this->sendDataTypes();
+        }elseif($obj->action=="apply_edit"){
+            $this->applyEdit($request);
+        }elseif($obj->action=="apply_add"){
 
         }else{
             echo "Bad request";
