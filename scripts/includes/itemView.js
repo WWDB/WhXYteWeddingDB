@@ -22,6 +22,7 @@ The paramaters it accesses are
 //Takes a string like 'int(20) unsigned' or 'varchar(5)' or 'enum('active','inactive') and creates an html <input>, or <select> element based on that datatype
 //Yes I know it is quite messy, 
 function columnType2Input(colType,id,value){
+    //alert("aaa")
     //get everything before the parens
     primaryType=colType.split("(")[0]
     
@@ -38,7 +39,8 @@ function columnType2Input(colType,id,value){
             break;
         case "decimal":
             //Make a number type that allows 0.01 value increments should be all we need for money related data
-            return '<input id='+id+' type=number step=0.01 value='+value+' >'
+            //Since we only have 
+            return '<input id='+id+' type=number step=0.01 value='+value+' >$'
             break;
         case "varchar":
             //creates a text input
@@ -46,7 +48,7 @@ function columnType2Input(colType,id,value){
             break;
         case "enum":
             //Creates a dropdown from the values in the enum
-            var html='<select id='+id+'>'
+            var html='<select id='+id+' value='+value+' >'
             var options=secondaryType.split(',');
             for(o in options){
                 option=options[o]
@@ -135,14 +137,14 @@ ItemView.prototype.draw =function(){
     switch(this.action){
         case "view_item":
             this.div.innerHTML="<h1>Currently Viewing</h1>"
-            var cols=Object.keys(this.item_data.item)
+            var cols=this.type_data.names
             console.log(cols);
-        
-            for(col in cols){
+            console.log(this.item_data.item)
+            for(var i=0; i<cols.length; ++i){
+                col=cols[i];
                 
                 
-                
-                this.div.innerHTML+="<b>"+cols[col]+"<b>:"+this.item_data.item[cols[col]]+"<br>"
+                this.div.innerHTML+="<b>"+cols[i]+"<b>:"+this.item_data.item[i]+"<br>"
                 
             }
 
@@ -151,21 +153,33 @@ ItemView.prototype.draw =function(){
         
             break;
         case "edit_item":
-        this.div.innerHTML="<h1>Currently Editing</h1>"
-        var cols=Object.keys(this.item_data.item)
-        console.log(cols);
+            this.div.innerHTML="<h1>Currently Editing</h1><form>"
+            var cols=this.type_data.names
+            console.log(cols);
     
-        for(var i=0; i<cols.length; ++i){
-            //col=cols[i];
-            
-            //columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])
-            this.div.innerHTML+="<b>"+cols[i]+"<b>:"+columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])+"<br>"
-            
-        }
-
+            for(var i=0; i<cols.length; ++i){
+                //col=cols[i];
+                
+                //columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])
+                //alert(cols[i]+" "+this.type_data.datatypes[i])
+                this.div.innerHTML+="<label>"+cols[i]+":</label>"+columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[i])+"<br>"
+                
+            }
+            this.div.innerHTML+="</form>"
             break;
         case "add_item":
+            this.div.innerHTML="<h1>Currently Adding</h1><form>"
+            var cols=this.type_data.names
+            console.log(cols);
 
+            for(var i=0; i<cols.length; ++i){
+                //col=cols[i];
+                
+                //columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])
+                this.div.innerHTML+="<label>"+cols[i]+":</label>"+columnType2Input(this.type_data.datatypes[i],i,"")+"<br>"
+                
+            }
+            this.div.innerHTML+="</form>"
 
         break;
         default:
@@ -183,19 +197,27 @@ ItemView.prototype.init =function(){
     }else{
         
         //We send a post request to the server
-        ;
+        var pd=this.postData;
+        if(pd.action=="add_item"){
+            pd={action:"get_basetypes"}
+        }
+       
 
-        ajax("POST",this.controllerURL,this.postData)
+        ajax("POST",this.controllerURL,pd)
         
         .then(data=>{
+            
             this.item_data=JSON.parse(data);
+            
+            
+            
             //once we get the data on the item, we request data on the datatypes of the comumns
-            ajax("POST",this.controllerURL,{action:"get_datatypes"})
+            ajax("POST",this.controllerURL,{action:"get_basetypes"})
             .then(data=>{
                 this.type_data=JSON.parse(data);
                 this.draw()
             },data=>{
-                this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify({action:"get_datatypes"})+" <br>Controller URL:"+this.controllerURL
+                this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify({action:"get_basetypes"})+" <br>Controller URL:"+this.controllerURL
             })
         }
         

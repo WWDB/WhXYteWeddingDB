@@ -59,7 +59,7 @@ class CommiteeView {
 
     
 
-    function __construct($primary_key,$view_name,$hiddenColumns,$writableColumns,$allowAdd,$servername,$username,$password,$dbname){
+    function __construct($primary_key,$view_name,$hiddenColumns,$writableColumns,$allowAdd,$baseTables,$joinedOn,$servername,$username,$password,$dbname){
         $this->primary_key=$primary_key;
         $this->view_name=$view_name;
         
@@ -69,6 +69,12 @@ class CommiteeView {
         $this->username=$username;
         $this->password=$password;
         $this->dbname=$dbname;
+        //$baseTables and $joined on are only to be used if the view you are creating is derived from a join on 1 or more tables
+        $this->baseTables=$baseTables;//if using a base table as the view, then you can keep this null
+        $this->joinedOn=$joinedOn;//if using a base table as the view, then you can keep this null
+
+
+
         $this->datatypes=$this->getTableDatatypes();//We dont need to pass in the data types of the columns
         
         //We insted get them from a query
@@ -133,21 +139,38 @@ class CommiteeView {
     //Returns a json containing all the attributes of a specific row forom the view
     //Used to help populate ItemView.js instances
     private function applyViewItem($key){
-        $result=$this->applyQuery("SELECT * FROM ".$this->view_name." WHERE ".$this->primary_key."=".$key);
-				
 
-        $r = mysqli_fetch_assoc($result);
-        
-        header('Content-Type: application/json');
-        if($r){
-        echo '{ "item":';
-        print json_encode($r);
-        echo '}';
-        } else{
-            echo '{ "item":';
-            echo '{"Error":"could not find item"}';
-            echo '}';
+        //$result=$this->applyQuery("SELECT * FROM ".$this->view_name." WHERE ".$this->primary_key."=".$key);
+        //header('Content-Type: application/json');
+       
+        $res=array();
+        $values=array();
+		foreach ($this->baseTables as $table) {
+            $result=$this->applyQuery("SELECT * FROM ".$table." WHERE ".$this->primary_key."=".$key);
+        	
+
+            $r = mysqli_fetch_assoc($result);
+            foreach($r as $item){
+                array_push($res,$item);
+            }
+
+            //$res = array_push($res, $r); 
         }
+        foreach ($res as $value) { 
+            $values[]=$value;
+        }
+            header('Content-Type: application/json');
+            if($res){
+            echo '{ "item":';
+            print json_encode($values);
+            echo '}';
+            } else{
+                echo '{ "item":';
+                echo '{"Error":"could not find item"}';
+                echo '}';
+            }
+        
+        
         
     }
 
@@ -160,7 +183,41 @@ class CommiteeView {
         print json_encode($this->writableColumns);
         echo "}";
     }
+    private function sendBaseDataTypes(){
+        $res=array();
+        $res1=array();
+		foreach ($this->baseTables as $table) {
+            
+            $result=$this->applyQuery("SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='".$table."'");
+        	
 
+            $rows = array();
+            $rows1=array();
+   	        while($r = mysqli_fetch_array($result)) {
+                $rows[] = $r[0];
+                $rows1[] = $r[1];
+            //echo $r[0]."<br>";
+            
+            }
+            
+            //print json_encode($r);
+            $res = array_merge($res, $rows);
+            $res1 = array_merge($res1, $rows1);
+            //print json_encode($res);
+        }
+        
+        //echo $rows[0]."<br>";
+        header('Content-Type: application/json');
+        echo '{"names": ';
+        print json_encode($res);
+        echo ',"datatypes": ';
+        print json_encode($res1);
+        echo ',"writable": ';
+        print json_encode($this->writableColumns);
+
+        echo "}";
+    }
+    
     //Used by itemView.js when applying a change to a row
     private function applyEdit($request){
 
@@ -179,8 +236,13 @@ class CommiteeView {
             $this->applyViewItem($obj->key);
         }elseif($obj->action=="get_datatypes"){
             $this->sendDataTypes();
+        }elseif($obj->action=="get_basetypes"){
+            $this->sendBaseDataTypes();
         }elseif($obj->action=="apply_edit"){
             $this->applyEdit($request);
+        }elseif($obj->action=="get_add"){
+            $this->sendBaseDataTypes();
+
         }elseif($obj->action=="apply_add"){
 
         }else{

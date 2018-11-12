@@ -170,7 +170,7 @@ TableView.prototype.draw=function(){
     this.searchAndAdd.appendChild(clearButton);
     addButton=document.createElement("a")
     addButton.innerHTML="Add"
-    addButton.href='baseEdit.html'
+    addButton.href="baseEdit.html?curl="+this.controllerURL+"&action=add_item"
     this.searchAndAdd.appendChild(addButton);
     this.sortText=document.createTextNode("")
     this.searchAndAdd.appendChild(this.sortText)

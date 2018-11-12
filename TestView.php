@@ -50,8 +50,12 @@ $view="Donor_Name_Test";
 
 */
 $hidden_Columns=array("Person_ID");
+$baseTables=array("Person","donation_item");
+$joinedOn="Person_ID";
 $writable_columns=array("First_Name","Last_Name");
 $adding_is_allowed=FALSE;
+
+
 
 
 //We are now using json insted of url paramaters
@@ -61,7 +65,7 @@ $obj = json_decode($json_str);
 
 
 
-$view=new CommiteeView($key,$view,$hidden_Columns,$writable_columns,$adding_is_allowed,DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+$view=new CommiteeView($key,$view,$hidden_Columns,$writable_columns,$adding_is_allowed,$baseTables,$joinedOn,DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
 
 $view->process_request($obj);
 ?>
