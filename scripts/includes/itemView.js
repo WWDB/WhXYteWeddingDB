@@ -52,6 +52,7 @@ function ItemView(divID){
             }
         }
     }
+    this.hassub=GET["hassub"]
     
     //alert(GET["action"])
     this.action=GET["action"];
@@ -163,12 +164,23 @@ ItemView.prototype.draw =function(){
                             
                         break;
                         case 4:
-                            this.div.innerHTML="<h1>Please select a "+ft.name+" or click here to add a new one</h1><br>"
-                            var tv=document.createElement("DIV")
-                            tv.id="tv"
-                            this.div.appendChild(tv);
-                            var cur_table=new TableView("tv",this.controllerURL,1,ft.name);
-                            cur_table.init();
+                            if(this.hassub){
+                                
+                                var itemForm=document.createElement("DIV")
+                                    
+                                var form=new AutoForm(itemForm,this.action,"",ft.col_names,ft.datatypes,ft.col_names)
+
+                                this.div.appendChild(itemForm);
+                                form.draw();
+                            }else{
+                                
+                                this.div.innerHTML="<h1>Please select a "+ft.name+" or click <a href=baseEdit.html?curl="+this.controllerURL+"&action=prepare_add_item&hassub=1>Here</a> to add a new one</h1><br>"
+                                var tv=document.createElement("DIV")
+                                tv.id="tv"
+                                this.div.appendChild(tv);
+                                var cur_table=new TableView("tv",this.controllerURL,1,ft.name);
+                                cur_table.init();
+                            }
                         break;
                    }
                 }

@@ -33,14 +33,20 @@ function TableView(divID,controllerURL,add_only,name){
 
 TableView.prototype.exportCSV = function() {
 
-    //Here are the rows of the table, do whatever you want with them
-    var rows=this.data.rows;
+    /*
+    here are all the rows currently displayed in the table
+    it changes depending on what the table is being sorted by
+    and what is being searched
 
-    alert("Not implemented yet, edit line 28 in tableView.js");
+    Hidden columns are also in the curResult, you can filter them out if you want 
+    */
+    var rows=this.curResults;
+    alert("Not implemented yet, edit line 44 in tableView.js");
 }
 
 
 //Internal function that sorts the table by a column
+//TODO: fix issue when sorting by columns that contain null values
 TableView.prototype.sortbycolumn = function() {
     //alert(colIndex)
     //this.data.rows.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
@@ -75,8 +81,9 @@ TableView.prototype.sortbycolumn = function() {
         }
     })
     
+    //After we sort we update the table to show the new sorted rows
     this.updateTable()
-    return 1
+    
 };
 
 //internal function that searchs in the table, invoked by the search button
@@ -215,7 +222,7 @@ TableView.prototype.updateTable = function() {
         }else{
             
             
-            console.log(curTable.checkedItems)
+            //console.log(curTable.checkedItems)
             var checkBox=document.createElement("input")
             if(this.checkedItems.includes(key)){
                 checkBox.checked=true;
