@@ -3,4 +3,6 @@ window.onload = function () {
     var form=new ItemView("edit_form");
     
     form.init();
+    
+    
  }

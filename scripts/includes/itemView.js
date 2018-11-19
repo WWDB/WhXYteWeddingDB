@@ -1,89 +1,16 @@
 /*
-The item view is a bit intresting
-
-It resides in a single html file, and paramaters about what part of the database it access's
-are passed in as url paramaters, which the object reads. The reason for this is to obvoid creating a seperate editSuchAndSuchTableRow.php file
-and insted pack the edit functions into the commiteeView class. 
-
-The paramaters it accesses are 
-    the url of the controller
-    which action its doing [view_item, edit_item,add_item]
-    and the primary key of the item.
-
-    The controller at the controller url is responsible for verifying that the user is authoirzed to view and edit records of that table
-
-
-
-
+    ItemView.js
 */
-
-
-//Helper function which takes SQL datatypes, enurmenations and sets, and converts them into html input elements.
-//Takes a string like 'int(20) unsigned' or 'varchar(5)' or 'enum('active','inactive') and creates an html <input>, or <select> element based on that datatype
-//Yes I know it is quite messy, 
-function columnType2Input(colType,id,value){
-    //alert("aaa")
-    //get everything before the parens
-    primaryType=colType.split("(")[0]
-    
-    secondaryType=colType.match(/\(([^)]+)\)/)[1]//get the things inside the parens
-    teritaryType=colType.split(")")[1]//get everything after the parens
-    
-    switch(primaryType){
-        case "int":
-            //Create a number input if its an int, make a min=0 for the number type if its unsigned
-            if(teritaryType=="unsigned"){
-                return '<input id='+id+'type="number" min="0" value='+value+'>'
-            }
-            return '<input id='+id+' type="number" value='+value+'>'
-            break;
-        case "decimal":
-            //Make a number type that allows 0.01 value increments should be all we need for money related data
-            //Since we only have 
-            return '<input id='+id+' type=number step=0.01 value='+value+' >$'
-            break;
-        case "varchar":
-            //creates a text input
-            return '<input id='+id+' type=text value='+value+'>'
-            break;
-        case "enum":
-            //Creates a dropdown from the values in the enum
-            var html='<select id='+id+' value='+value+' >'
-            var options=secondaryType.split(',');
-            for(o in options){
-                option=options[o]
-                if(value==option){
-                    html+='<option selected="selected">'+option+'</option>' 
-                }else{
-                    html+='<option>'+option+'</option>' 
-                }
-            }
-            html+='</select>'
-            return html;
-            break;
-        case "set":
-        //Creates a dropdown that allows you to select multiple things
-        //TODO: make this an array of checkboxes so it is not a pain to use.
-        var html='<select multiple id='+id+'>'
-        var options=secondaryType.split(',');
-        for(o in options){
-            option=options[o]
-            if(value==option){
-                html+='<option selected="selected">'+option+'</option>' 
-            }else{
-                html+='<option>'+option+'</option>' 
-            }
-        }
-        html+='</select>'
-        return html;
-            break;
-    }
-    
-}
+var script = document.createElement("script");  // create a script DOM node
+script.src = "scripts/includes/autoForm.js";  // set its src to the provided URL
+document.head.appendChild(script); 
+script = document.createElement("script");  // create a script DOM node
+script.src = "scripts/includes/tableView.js";  // set its src to the provided URL
+document.head.appendChild(script); 
 
 function ItemView(divID){
 
-    
+    this.subitem=null;
     var query = window.location.search.substring(1).split("&");
     var GET = {};
     for (var i = 0, max = query.length; i < max; i++)
@@ -101,15 +28,31 @@ function ItemView(divID){
     this.isAdding=false;
     if(!GET["key"]){
         this.isAdding=true;
+        if(GET["hassub"]){
+            this.postData={
+                action:GET["action"],
+                subitem:GET["subitem"]
+            }
+        }else{
         this.postData={
             action:GET["action"]
         }
+    }
     }else{
-        this.postData={
-            action:GET["action"],
-            key:GET["key"]
+        if(GET["hassub"]){
+            this.postData={
+                action:GET["action"],
+                subitem:GET["subitem"],
+                key:GET["key"]
+            }
+        }else{
+            this.postData={
+                action:GET["action"],
+                key:GET["key"]
+            }
         }
     }
+    
     //alert(GET["action"])
     this.action=GET["action"];
     //I know this is a bit messy, but we do this so we can get the data to 'view' the item that we are editing
@@ -122,73 +65,125 @@ function ItemView(divID){
     this.div=document.getElementById(divID);
     this.table=null;
     
-    this.item_data=null;
-    this.type_data=null;
+    this.data=null;
+    
     this.curResults=null;
     this.sortToggle=1;
     this.sortText=null;
     this.sortingIndex=0;
+
+    this.addMenuStep=0;
+    this.isEnteringNew=false;
     
+}
+ItemView.prototype.draw =function(){
+    this.div.innerHTML="";
+    //console.log(this.data);
+    var tableViews=[];
+    
+    //this.div.appendChild(itemForm)
+    //curTitle=document.createElement("H1");
+    //curTitle.innerHTML="Multivalued attributes for this item";
+    //this.div.appendChild(curTitle)
+    if(this.data.tables){
+       
+        var ft=this.data.tables;
+        if(this.action=="edit_item"||this.action=="view_item"){
+            for(var i=0; i<this.data.tables.length; ++i){
+                //console.log("created table")
+                var curTitle=document.createElement("H2");
+                curTitle.innerHTML=ft[i].name;
+                //this.div.appendChild(curTitle)
+                var curDiv=document.createElement("DIV");
+                curDiv.id=i
+                this.div.appendChild(curDiv)
+                if(ft[i].displayMode==2){
+                    var cur_table=new TableView(curDiv.id,"",0,ft[i].name);
+                    //console.log(ft[i])
+                    cur_table.init(ft[i],this.controllerURL,ft[i].name);
+                }else{
+                    var itemForm=document.createElement("DIV");
+                    console.log(this.action)
+                    
+                    var form=new AutoForm(itemForm,this.action,ft[i].item,ft[i].col_names,ft[i].datatypes,ft[i].writable)
+                    this.div.appendChild(itemForm);
+                    form.draw();
+                }
+
+            }
+        }else{
+            var curItemView=this;
+            if(this.postData.action=="prepare_add_item"){
+                
+                /*ADD_PRIVILAGE options
+                if set to 0 then adding is disabled for that base table
+                if set to a 1 then the user cannot add a new item but can select a pre existing item(whose forgin key in the relationship is null)
+                if set to a 2 then the user cannot add a new item but can select multiple pre existing items(whose forgin key in the relationship is null)
+                if set to a 3 then the user is allowed to create a new item only
+                if set to a 4 the user is given a choice to select a pre existing item(again whose forgin key is null) or they can add a new item
+               
+                */
+
+               
+               if(this.addMenuStep<=this.data.tables.length){
+                   var ft=this.data.tables[this.addMenuStep];
+                    switch(ft.addMode){
+                        case 0:
+                            this.div.innerHTML="<h1>adding to this table is disabled</h1>"
+                        break;
+                        case 1:
+                            this.div.innerHTML="<h1>Please select a "+ft.name+"</h1><br>"
+                            var tv=document.createElement("DIV")
+                            tv.id="tv"
+                            this.div.appendChild(tv);
+                            var cur_table=new TableView("tv",this.controllerURL,1,ft.name);
+                            cur_table.init();
+                        break;
+                        case 2:
+                            this.div.innerHTML="<h1>Please select a "+ft.name+"</h1><br>"
+                            var tv=document.createElement("DIV")
+                            tv.id="tv"
+                            this.div.appendChild(tv);
+                            var cur_table=new TableView("tv",this.controllerURL,2,ft.name);
+                            cur_table.init();
+                        break;
+                        case 3:
+                            
+                                //console.log("created table")
+                            
+                            var itemForm=document.createElement("DIV")
+                                    
+                            var form=new AutoForm(itemForm,this.action,"",ft.col_names,ft.datatypes,ft.col_names)
+
+                            this.div.appendChild(itemForm);
+                            form.draw();
+                            
+                            
+                                
+                            
+                        break;
+                        case 4:
+                            this.div.innerHTML="<h1>Please select a "+ft.name+" or click here to add a new one</h1><br>"
+                            var tv=document.createElement("DIV")
+                            tv.id="tv"
+                            this.div.appendChild(tv);
+                            var cur_table=new TableView("tv",this.controllerURL,1,ft.name);
+                            cur_table.init();
+                        break;
+                   }
+                }
+            }
+                   
+                
+            
+            
+        }
+        //this.div.appendChild()
+
+    }
     
 }
 
-ItemView.prototype.draw =function(){
-    //alert(this.action)
-    switch(this.action){
-        case "view_item":
-            this.div.innerHTML="<h1>Currently Viewing</h1>"
-            var cols=this.type_data.names
-            console.log(cols);
-            console.log(this.item_data.item)
-            for(var i=0; i<cols.length; ++i){
-                col=cols[i];
-                
-                
-                this.div.innerHTML+="<b>"+cols[i]+"<b>:"+this.item_data.item[i]+"<br>"
-                
-            }
-
-            
-            
-        
-            break;
-        case "edit_item":
-            this.div.innerHTML="<h1>Currently Editing</h1><form>"
-            var cols=this.type_data.names
-            console.log(cols);
-    
-            for(var i=0; i<cols.length; ++i){
-                //col=cols[i];
-                
-                //columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])
-                //alert(cols[i]+" "+this.type_data.datatypes[i])
-                this.div.innerHTML+="<label>"+cols[i]+":</label>"+columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[i])+"<br>"
-                
-            }
-            this.div.innerHTML+="</form>"
-            break;
-        case "add_item":
-            this.div.innerHTML="<h1>Currently Adding</h1><form>"
-            var cols=this.type_data.names
-            console.log(cols);
-
-            for(var i=0; i<cols.length; ++i){
-                //col=cols[i];
-                
-                //columnType2Input(this.type_data.datatypes[i],i,this.item_data.item[cols[i]])
-                this.div.innerHTML+="<label>"+cols[i]+":</label>"+columnType2Input(this.type_data.datatypes[i],i,"")+"<br>"
-                
-            }
-            this.div.innerHTML+="</form>"
-
-        break;
-        default:
-            this.div.innerHTML="ItemView.js Error, invalid action"
-    }
-
-    this.div.innerHTML+="<br><a href="+ document.referrer +">Go Back</a>"
-
-};
 
 ItemView.prototype.init =function(){
     //alert(this.controllerURL)
@@ -198,33 +193,24 @@ ItemView.prototype.init =function(){
         
         //We send a post request to the server
         var pd=this.postData;
-        if(pd.action=="add_item"){
-            pd={action:"get_basetypes"}
-        }
+        
        
 
         ajax("POST",this.controllerURL,pd)
         
         .then(data=>{
             
-            this.item_data=JSON.parse(data);
-            
-            
-            
-            //once we get the data on the item, we request data on the datatypes of the comumns
-            ajax("POST",this.controllerURL,{action:"get_basetypes"})
-            .then(data=>{
-                this.type_data=JSON.parse(data);
-                this.draw()
-            },data=>{
-                this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify({action:"get_basetypes"})+" <br>Controller URL:"+this.controllerURL
-            })
+            this.data=JSON.parse(data);
+            curItemView=this;
+    
+            curItemView.draw();
         }
         
         ,data=>{
-            this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify(this.postData) +"<br> Controller URL:"+this.controllerURL
+            this.div.innerHTML="ItemView.js AJAX Load error: "+data+"<br> Request info: "+JSON.stringify(this.postData) +"<br> Controller URL:"+this.controllerURL;
         })
 
+        
             
         
         
@@ -232,5 +218,3 @@ ItemView.prototype.init =function(){
     }
     //window.history.replaceState({}, document.title, "/" + "baseEdit.html");
 };
-
-//Internal function that sorts the table by a column

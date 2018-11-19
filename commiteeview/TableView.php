@@ -42,11 +42,16 @@ class TableView {
     private $allowAdd;
     //When the user clicks the MORE button next to a record, a seperate page will show ALL the columns, including the hidden columns.
     private $link;
-    
+
+    //add_only is used when the user is adding an item to a view. Sometimes the user is required to select a preexisting item to add to a relationship
+    //if set to 1 then the tableView will change to disable the more,edit,delete(if aplicable), and add buttons
+    //and will insted put a checkbox by the row. The user can only select 1 checkbox.
+    //if set to 2 then the user can select multiple checkboxes.
+    private $add_only;
 
     
     //
-    function __construct($primary_key,$view_name,$hiddenColumns,$allowAdd,$admin_deleting_is_allowed,$link){
+    function __construct($primary_key,$view_name,$hiddenColumns,$allowAdd,$admin_deleting_is_allowed,$link,$add_only){
         $this->primary_key=$primary_key;
         $this->view_name=$view_name;
         $this->admin_deleting_is_allowed=$admin_deleting_is_allowed;
@@ -60,6 +65,7 @@ class TableView {
         $this->baseTables=$baseTables;//if using a base table as the view, then you can keep this null
         $this->joinedOn=$joinedOn;//if using a base table as the view, then you can keep this null
         $this->allowAdd=$allowAdd;
+        $this->add_only=$add_only;
 
 
         
@@ -87,11 +93,13 @@ class TableView {
     }
 
 
-    
     //applys a select * from <VIEW_NAME> and returns the results a a .json
     //containing all the columns and rows. Used to help populate TableView.js instances.
-    public function applyViewTable(){
-        $result=$this->applyQuery("SELECT * FROM ".$this->view_name);
+    public function applyViewTableFromQuery($result)
+    {
+        
+        //$result=$this->applyQuery("SELECT * FROM ".$this->view_name);
+        
         header('Content-Type: application/json');
         echo '{ "rows":';
         $rows = array();
@@ -103,12 +111,28 @@ class TableView {
    	    }
         
         print json_encode($rows);
+        if(!$this->add_only){
+            echo ',"add_only":0';
+        }else{
+            echo ',"add_only":1';
+        }
+        
         echo ',"hidden":';
         print json_encode($this->hiddenColumns);
         echo ',"key":';
         print json_encode($this->primary_key);
         echo ', "admin_deleting_is_allowed":'.$this->admin_deleting_is_allowed;
         echo "}";
+    }
+    //applys a select * from <VIEW_NAME> and returns the results a a .json
+    //containing all the columns and rows. Used to help populate TableView.js instances.
+    public function applyViewTable()
+    {
+        
+        $result=$this->applyQuery("SELECT * FROM ".$this->view_name);
+        $this->applyViewTableFromQuery($result);
+        
+    
     }
 }
 

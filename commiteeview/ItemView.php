@@ -23,6 +23,7 @@ The paramaters passed into the constructor specifify what the itemView will show
 
     
 */
+include("TableView.php");
 class ItemView {
     
     //Connection information
@@ -49,7 +50,7 @@ class ItemView {
 
     function __construct($primary_key,$hiddenColumns,$baseTables,$admin_deleting_is_allowed,$joinedOn,$link){
         $this->primary_key=$primary_key;
-        $this->view_name=$view_name;
+        
         
         $this->hiddenColumns=$hiddenColumns;
         $this->writableColumns=$writableColumns;
@@ -62,18 +63,8 @@ class ItemView {
 
 
         //$this->datatypes=$this->getTableDatatypes();//We dont need to pass in the data types of the columns
-        $this->mainTables=array();
-        $this->foreignTables=array();
-        foreach ($this->baseTables as $table) {
-            if($table[1]==1){
-                $this->mainTables[]=$table;
-                
-            }else{
-                
-                $this->foreignTables[]=$table;
-            }
-
-        }
+        
+        
         
         
     }
@@ -120,6 +111,43 @@ class ItemView {
         return $rows;
     }
 
+    //If the add mode is 1 or 3 then the user must be able to select an item from a pre existing table
+    //we use the tableView backend to dump the information from this table
+    public function getBaseTable(){
+        $forginPrimary=$this->applyQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '". $this->baseTables[0][0] ."' AND CONSTRAINT_NAME LIKE 'P%'");
+        $key="";
+        while($r1 = mysqli_fetch_assoc($forginPrimary)) {
+                     
+            $key = $r1["COLUMN_NAME"];
+            
+        }
+
+        $tableView=new TableView($key,$this->baseTables[0][0],array(),True,0,$this->link,1);
+        $result=$this->applyQuery("SELECT * FROM ".$this->baseTables[0][0]." WHERE 1");
+        
+        $tableView->applyViewTableFromQuery($result);
+
+
+    }
+    public function prepareAddItem(){
+        header('Content-Type: application/json');
+            echo '{ "tables":';
+        $allTables=array();
+        foreach ($this->baseTables as $table) {
+            $curTable=array();
+            $curTable["name"]=$table[0];
+            $curTable["datatypes"]=$this->getTableDatatypes($table[0]);
+            $curTable["writable"]=$table[2];
+            $curTable["hidden"]=array($this->joinedOn);
+            $curTable["col_names"]=$this->getTableColumnNames($table[0]);
+            $curTable["displayMode"]=$table[1];
+            $curTable["addMode"]=$table[3];
+            $allTables[]=$curTable;
+        }
+        print json_encode($allTables);
+        echo "}";
+    }
+
     
     /*
         Returns a json containing the first 3 columns of each row in each of the forgin tables.
@@ -129,11 +157,14 @@ class ItemView {
     */
     public function applyViewItem($key){
         header('Content-Type: application/json');
-            echo '{ "foreign_tables":';
-        $allForgein=array();
-        foreach ($this->foreignTables as $table) {
+            echo '{ "tables":';
+        $allTables=array();
+        foreach ($this->baseTables as $table) {
+            
             //echo "eee";
-            $curTable=array($table1[0]);
+            $curTable=array();
+            $curTable["name"]=$table[0];
+            $curTable["displayMode"]=$table[1];
             //echo $table1[1];
             if($table[1]==2){
                 $result=$this->applyQuery("SELECT * FROM ".$table[0]." WHERE ".$table[0].".".$this->joinedOn." = ".$key);
@@ -152,43 +183,33 @@ class ItemView {
                     
                 }
                 $curTable["rows"]=$rows;
-                $curTable["name"]=$table[0];
-                $curTable["datatypes"]=$this->getTableDatatypes($table[0]);
-                $curTable["writable"]=$table[2];
-                $curTable["hidden"]=array($this->joinedOn);
+                
+                
                
-                $allForgein[]=$curTable;
+                
                 //print json_encode($curTable);
-            }
-        }
-        print json_encode($allForgein);
-        echo ',"key":';
-        print json_encode($this->joinedOn);
-        echo ',"item":';
-        $res=array();
-        $values=array();
-		foreach ($this->mainTables as $table) {
-            
-            $result=$this->applyQuery("SELECT * FROM ".$table[0]." WHERE ".$this->primary_key."=".$key);
+            }else{
+                $res=array();
+                $result=$this->applyQuery("SELECT * FROM ".$table[0]." WHERE ".$this->primary_key."=".$key);
         	
 
-            $r = mysqli_fetch_assoc($result);
-            foreach($r as $item){
-                array_push($res,$item);
+                $r = mysqli_fetch_assoc($result);
+                foreach($r as $item){
+                    array_push($res,$item);
+                }
+                
             }
-
-            //$res = array_push($res, $r); 
+            $curTable["item"]=$res;
+            $curTable["datatypes"]=$this->getTableDatatypes($table[0]);
+            $curTable["writable"]=$table[2];
+            $curTable["hidden"]=array($this->joinedOn);
+            $curTable["col_names"]=$this->getTableColumnNames($table[0]);
+            $allTables[]=$curTable;
         }
-        print json_encode($res);
-        //foreach ($res as $value) { 
-            //$values[]=$value;
-        //}
-
-        //print json_encode($values);
-        echo ', "datatypes":';
-        print json_encode($this->getTableDatatypes($this->mainTables[0][0]));
-        echo ', "col_names":';
-        print json_encode($this->getTableColumnNames($this->mainTables[0][0]));
+        print json_encode($allTables);
+        echo ',"key":';
+        print json_encode($this->joinedOn);
+        
         echo "}";
     }
 
@@ -197,69 +218,17 @@ class ItemView {
 
     }
 
-    //Used by itemView.js when adding to a row
-    private function applyAdd($request){
-
-    }
+    
 
     //Used to by ItemView.js to view or edit a related item to the current CommiteeView
-    public function applyViewSubItem($key,$tableIDX){
-
-    }
-
-    public function applyAddSubItem($table){
-
-    }
     
-
-
-    
-
-
-    
-         
-        
-        
     
 
     /*
     When called this function sends all the datatypes of the joined base tables
 
     */
-    private function sendDataTypes(){
-        $res=array();
-        $res1=array();
-		foreach ($this->baseTables as $table) {
-            
-            $result=$this->applyQuery("SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='".$table."'");
-        	
-
-            $rows = array();
-            $rows1=array();
-   	        while($r = mysqli_fetch_array($result)) {
-                $rows[] = $r[0];
-                $rows1[] = $r[1];
-            //echo $r[0]."<br>";
-            
-            }
-            
-            //print json_encode($r);
-            $res = array_merge($res, $rows);
-            $res1 = array_merge($res1, $rows1);
-            //print json_encode($res);
-        }
-        
-        //echo $rows[0]."<br>";
-        header('Content-Type: application/json');
-        echo '{"names": ';
-        print json_encode($res);
-        echo ',"datatypes": ';
-        print json_encode($res1);
-        echo ',"writable": ';
-        print json_encode($this->writableColumns);
-
-        echo "}";
-    }
+    
     
     
 

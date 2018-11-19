@@ -3,6 +3,6 @@
    
    if(session_destroy()) {
 	  $_SESSION = [];
-      header("Location: /WhxyteWeddingDB/login.php");
+      header("Location: /testview/login.php");
    }
 ?>

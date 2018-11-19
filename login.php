@@ -13,14 +13,14 @@
       $active = $row['active'];
       
       $count = mysqli_num_rows($result);
-      
+      //echo $count;
       // If result matched $myusername and $mypassword, table row must be 1 row
-      if($count == 1) {
+      if($count >= 1) {
    
 		 //session_register("myusername"); This is not working in current PHP Version
          $_SESSION['login_user'] = $myusername;
          
-         header("location: /WhxyteWeddingDB/welcome.php");
+         header("location: /testview/welcome.php");
 		  
          //header("location: https://hanahopedb.net/testview/testview.html");
          

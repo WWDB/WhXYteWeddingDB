@@ -1,6 +1,6 @@
 <?php
 
-include("TableView.php");
+
 include("ItemView.php");
 /*
 CommiteeView.php
@@ -23,6 +23,12 @@ TODO: Add XSS injection protection
 
 
 NOTE: I just realized that with a dynamicly generated tableView and a dynamicly generated add form and edit form, I am builing a new PHPmyAdmin...
+
+
+Depending on what is passed into the $baseTables arguement, the commiteeView may create multiple ItemViews
+EX: if the user wants to view people who donated, and their donation items
+the commitee view will create an itemView for the person showing all their donation items
+and a seperate ItemView for donation_item in which the user can add, or edit to single donation items.
 */
 
 class CommiteeView {
@@ -51,7 +57,7 @@ class CommiteeView {
 
     
 
-    function __construct($primary_key,$view_name,$hiddenColumns,$allowAdd,$admin_deleting_is_allowed,$baseTables,$joinedOn,$servername,$username,$password,$dbname){
+    function __construct($primary_key,$view_name,$hiddenColumns,$admin_deleting_is_allowed,$baseTables,$joinedOn,$servername,$username,$password,$dbname){
         $this->primary_key=$primary_key;
         $this->view_name=$view_name;
         
@@ -69,13 +75,42 @@ class CommiteeView {
 
         //$this->datatypes=$this->getTableDatatypes();//We dont need to pass in the data types of the columns
         //$primary_key,$view_name,$hiddenColumns,$allowAdd,$admin_deleting_is_allowed,$link
-        $this->tableView=new TableView($primary_key,$view_name,$hiddenColumns,$allowAdd,$admin_deleting_is_allowed,$link);
+        $this->tableView=new TableView($primary_key,$view_name,$hiddenColumns,True,$admin_deleting_is_allowed,$link,0);
+        
+        //create the main Itemview
         $this->itemView=new ItemView($primary_key,$hiddenColumns,$baseTables,$admin_deleting_is_allowed,$joinedOn,$link);
+        $this->subItemViews=array();
+        foreach ($this->baseTables as $table) {
+            if($table[1]==2||$table[4]!=2){
+                $newBT=$table;
+                $newBT[1]=1;
+                $name=$table[0];
+                
+                $this->subItemViews[$name]=new ItemView("Item_ID",array(),array($newBT),$admin_deleting_is_allowed,$joinedOn,$link);
+            }
+        }
 //$view->process_request($obj);
         //We insted get them from a query
         
     }
-	
+    private function applyQuery($sql){
+
+        
+
+        if($this->link->connect_errno) {
+            die("Connection failed : " . $mysqli->connect_error);
+        }
+        //$sql="SELECT * FROM volunteerstest";
+        $result=$this->link->query($sql);
+        if(!$result){
+			
+            
+			
+			die('{"item":{"Error":"ERROR: Could not execute'. $sql." ".mysqli_error($this->link).'"}}');
+        }else{
+        	return $result;
+		}
+    }
     
 
 
@@ -87,11 +122,26 @@ class CommiteeView {
             //die('{"item":{"Error":"BAD VIEW"}}');
         }elseif($obj->action=="view_item"){
             //$this->applyViewItem($obj->key);
-            $this->itemView->applyViewItem($obj->key);
+            if($obj->subitem!=null){
+                //echo $obj->subitem;
+                $this->subItemViews[$obj->subitem]->applyViewItem($obj->key);
+            }else{
+                $this->itemView->applyViewItem($obj->key);
+            }
 
-        }elseif($obj->action=="get_datatypes"){
-            //$this->sendDataTypes();
-        }elseif($obj->action=="get_basetypes"){
+        }elseif($obj->action=="prepare_add_item"){
+            //$this->applyViewItem($obj->key);
+            if($obj->subitem!=null){
+                //echo $obj->subitem;
+                $this->subItemViews[$obj->subitem]->prepareAddItem();
+            }else{
+                $this->itemView->prepareAddItem();
+            }
+        }elseif($obj->action=="get_add_selection"){
+            if($obj->subitem!=null){
+                
+                $this->subItemViews[$obj->subitem]->getBaseTable();
+            }  
             //$this->sendBaseDataTypes();
         }elseif($obj->action=="apply_edit"){
             //$this->applyEdit($request);
