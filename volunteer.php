@@ -165,7 +165,7 @@ Created by Amanda Suydam except where noted, November 2018-->
 			<?php
 				$servername = "localhost";
 				$username="dbuser";
-				$password="M4dr!9aL$";
+				$password="***********";
 				$dbname="hanadesigns_whxytewedding";
 				
 				echo "<h2>Available roles</h2>";
