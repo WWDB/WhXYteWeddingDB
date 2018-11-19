@@ -4,7 +4,7 @@
 
 $servername = "localhost";
 $username="dbuser";
-$password="M4dr!9aL$";
+$password="**********";
 $dbname="hanadesigns_whxytewedding";
 
 $link= new mysqli($servername,$username,$password,$dbname);
