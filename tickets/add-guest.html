@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!-- a form to add guest to the person database so they are already in there and assigned a person_id should they want to purchase anything 
+at the silent auction. It simply enters the person into the person table. There are no other tables associated with this individual 
+Created by Amanda Suydam, November 2018 -->
+
+<html lang = "en">
+<head>
+	<meta charset = "UTF-8">
+	<title> WhXYte Wedding Additional Guest Registration </title>
+	<script type = "text/javascript" src="add-guest.js"></script>
+</head>
+
+<body>
+<!-- TODO: add div class that will center this text -->
+	<h3> Additional Guest Registration </h3>
+	<br><br>
+	Thank you for your ticket purchase! Here you can add additional guest to speed up the registration for the silent auction.<br>
+	This is completely optional.<br>
+	Good Luck!<br><br>
+	Please enter additional guest information below. <br>
+	<form action="add-guest.php" method="post" id="AddGuestReg" onsubmit="return validateForm()">
+		<p>
+		<!-- first name entry -->
+			<label for="firstName"><span style="color: #ff0000">*</span>First Name:      </label>
+			<input type="text" name="first_name" id="firstName">
+		<!-- Last name entry -->	
+			<label for="lastName"><span style="color: #ff0000">*</span>Last Name:</label>
+			<input type="text" name="last_name" id="lastName">
+			<br><br>
+		<!-- Street address entry -->
+		<!-- why are these optional? don't we want at least the buyer to be fully registered for tax purposes? -->
+			<label for="street"><span style="color: #ff0000">*</span>Street Address:</label>
+			<input type="text" name="street" id="street" style="width: 28em;">
+		<!-- apartment type-->	
+			<label for="unit_type"> Apt/Suite/Unit: </label>
+			<select name="unit_type">
+				<option value="NULL">None</option>
+				<option value="APT">APT</option>
+				<option value="Suite">Suite</option>
+				<option value="Unit">Unit</option>
+			</select>
+		<!-- apartment or suite -->
+			<label for="apt">Number:</label>
+			<input type="text" name="apt" id="apt" style="width: 3em;">
+			<br><br>
+		<!-- City -->
+			<label for="city"><span style="color: #ff0000">*</span>City:</label>
+			<input type="text" name="city" id="city">
+		<!-- State, needs to be a drop down menu option -->
+			<label for="state"><span style="color: #ff0000">*</span>State:</label>
+			<select name="state">
+				<option value="AL"> AL </option>
+				<option value="AK"> AK </option>
+				<option value="AZ"> AZ </option>
+				<option value="AR"> AR </option>
+				<option value="CA"> CA </option>
+				<option value="CO"> CO </option>
+				<option value="CT"> CT </option>
+				<option value="DC"> DC </option>
+				<option value="DE"> DE </option>
+				<option value="FL"> FL </option>
+				<option value="GA"> GA </option>
+				<option value="HI"> HI </option>
+				<option value="ID"> ID </option>
+				<option value="IL"> IL </option>
+				<option value="IN"> IN </option>
+				<option value="IA"> IA </option>
+				<option value="KS"> KS </option>
+				<option value="KY"> KY </option>
+				<option value="LA"> LA </option>
+				<option value="MD"> MD </option>
+				<option value="ME"> ME </option>
+				<option value="MA"> MA </option>
+				<option value="MI"> MI </option>
+				<option value="MN"> MN </option>
+				<option value="MS"> MS </option>
+				<option value="MO"> MO </option>
+				<option value="MT"> MT </option>
+				<option value="NE"> NE </option>
+				<option value="NJ"> NJ </option>
+				<option value="NM"> NM </option>
+				<option value="NY"> NY </option>
+				<option value="NC"> NC </option>
+				<option value="ND"> ND </option>
+				<option value="OH"> OH </option>
+				<option value="OK"> OK </option>
+				<option value="OR"> OR </option>
+				<option value="PA"> PA </option>
+				<option value="PR"> PR </option>
+				<option value="RI"> RI </option>
+				<option value="SC"> SC </option>
+				<option value="SD"> SD </option>
+				<option value="TN"> TN </option>
+				<option value="TX"> TX </option>
+				<option value="UT"> UT </option>
+				<option value="VT"> VT </option>
+				<option value="VA"> VA </option>
+				<option value="WA"> WA </option>
+				<option value="WV"> WV </option>
+				<option value="WI"> WI </option>
+				<option value="WY"> WY </option>
+			</select>
+		<!-- zip code -->
+			<label for="zipCode"><span style="color: #ff0000">*</span>Zip Code:</label>
+			<input type="text" name="zip" id="zipCode" style="width: 6em;" maxlength="5">  <!-- again we have a format fun. 5 digit zip or 5-4 format -->
+			<br><br>
+		<!-- email address -->
+			<label for="email"><span style="color: #ff0000">*</span>Email:</label>
+			<input type="text" name="email" id="email" style="width: 30em;"><br><br>
+		<!-- end loop of how many people that are coming -->
+		
+		Items marked with <span style="color: #ff0000">*</span> are required.
+		<br><br>
+		<!-- and a way to submit it all -->
+		<input type="submit" value="Submit">
+		
+	</form>
+</body>
+</html>	

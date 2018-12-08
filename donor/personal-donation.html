@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- Personal donation html page for the WhXYte wedding database. This allows for online donation of cash, or to contact the charity about inkind or service donations
+ created by Amanda Suydam, unless otherwise noted, Novemeber 10, 2018-->
+ 
+<html lang = "en">
+	<head>
+		<meta charset = "UTF-8">
+		<?php
+		  //set headers to NOT cache a page
+		  header("Cache-Control: no-cache, must-revalidate"); //HTTP 1.1
+		  header("Pragma: no-cache"); //HTTP 1.0
+		  header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+
+		?>
+		<title> WhXYte Wedding Donation Interest Form </title>
+		<script type="text/javascript" src="personal-donation.js"></script>
+	</head>
+
+	<body>
+
+		<h3>Item donation interest</h3>
+		Please fill out the below form with the item or service you are interested in donating to our event. <br>
+		Afterwards, one of our donation committee members will be in contact with you to make arrangements for the donation. <br>
+		Thank you!<br><br>
+		
+		For monetary donations please visit us<b> <a href="pdonation.html">here</a></b>.
+		<!-- instructions here -->
+		Items marked with <span style="color: #ff0000">*</span> are required.
+		<br><br>
+		<form action = "personal-donation.php" onsubmit="return validateForm()" method = "post" id="PersonalDonation" name="PersonalDonation" >
+			<p>
+			<!-- first name entry -->
+				<label for="first_name"><span style="color: #ff0000">*</span>First Name: </label>
+				<input type="text" name="first_name" id="first_name">
+			<!-- Last name entry -->	
+				<label for="last_name"><span style="color: #ff0000">*</span>Last Name: </label>
+				<input type="text" name="last_name" id="last_name">
+				<br><br>
+			<!-- phone number -->
+				<label for="phoneNum"><span style="color: #ff0000">*</span>Phone Number: </label>
+				<input type="text" name="phoneNum" id="phoneNum" maxlength="13">   (303)555-1234  <!-- What format do we want to sanitize? And example before, after, or in text box? -->
+				<br><br>
+			<!-- email address-->
+				<label for="email"><span style="color: #ff0000">*</span>Email: </label>
+				<input type="text" name="email" id="email" style="width: 30em;"> <br><br>
+			Providing an address will allow us to notify you via mail of future WhXYte Wedding or Hana's Hope events.
+			<br> This is optional <br><br>
+			<!-- Street address entry.  Address is NOT required for volunteers but is optional -->
+				<label for="street">Street Address:</label>
+				<input type="text" name="street" id="street" style="width: 28em;">
+			<!-- unit type-->	
+				<label for="unit_type"> Apt/Suite/Unit: </label>
+				<select name="unit_type">
+					<option value="NULL">None</option>
+					<option value="APT">APT</option>
+					<option value="Suite">Suite</option>
+					<option value="Unit">Unit</option>
+				</select>
+			<!-- apartment or suite -->
+				<label for="apt">Number:</label>
+				<input type="text" name="apt" id="apt" style="width: 3em;">
+				<br><br>
+			<!-- City -->
+				<label for="city">City:</label>
+				<input type="text" name="city" id="city">
+			<!-- State, needs to be a drop down menu option -->
+				<label for="state">State:</label>
+				<select name="state">
+					<option value="AL"> AL </option>
+					<option value="AK"> AK </option>
+					<option value="AZ"> AZ </option>
+					<option value="AR"> AR </option>
+					<option value="CA"> CA </option>
+					<option value="CO"> CO </option>
+					<option value="CT"> CT </option>
+					<option value="DC"> DC </option>
+					<option value="DE"> DE </option>
+					<option value="FL"> FL </option>
+					<option value="GA"> GA </option>
+					<option value="HI"> HI </option>
+					<option value="ID"> ID </option>
+					<option value="IL"> IL </option>
+					<option value="IN"> IN </option>
+					<option value="IA"> IA </option>
+					<option value="KS"> KS </option>
+					<option value="KY"> KY </option>
+					<option value="LA"> LA </option>
+					<option value="MD"> MD </option>
+					<option value="ME"> ME </option>
+					<option value="MA"> MA </option>
+					<option value="MI"> MI </option>
+					<option value="MN"> MN </option>
+					<option value="MS"> MS </option>
+					<option value="MO"> MO </option>
+					<option value="MT"> MT </option>
+					<option value="NE"> NE </option>
+					<option value="NJ"> NJ </option>
+					<option value="NM"> NM </option>
+					<option value="NY"> NY </option>
+					<option value="NC"> NC </option>
+					<option value="ND"> ND </option>
+					<option value="OH"> OH </option>
+					<option value="OK"> OK </option>
+					<option value="OR"> OR </option>
+					<option value="PA"> PA </option>
+					<option value="PR"> PR </option>
+					<option value="RI"> RI </option>
+					<option value="SC"> SC </option>
+					<option value="SD"> SD </option>
+					<option value="TN"> TN </option>
+					<option value="TX"> TX </option>
+					<option value="UT"> UT </option>
+					<option value="VT"> VT </option>
+					<option value="VA"> VA </option>
+					<option value="WA"> WA </option>
+					<option value="WV"> WV </option>
+					<option value="WI"> WI </option>
+					<option value="WY"> WY </option>
+				</select>
+			<!-- zip code -->
+				<label for="zipCode">Zip Code:</label>
+				<input type="text" name="zip" id="zipCode" style="width: 6em;" maxlength="5">  <!-- again we have a format fun. 5 digit zip or 5-4 format -->
+				<br><br>
+			<!-- donation type -->
+			Below, please tell us about the item or service you would like to donate. <br>
+				<label for="state">Donation Type:</label>
+				<select name="DonationType" id="DonationType">
+					<option value="Inkind"> Item </option>
+					<option value="Service"> Service </option>
+				</select>	
+			<!-- estimated value-->
+				<label for="value">Estimated value:</label>
+				<input type="text" name="value" id="value" style="width: 6em">
+				<br><br>
+			<!-- text area to enter description of the item -->
+			Please enter a description of the item:<br>
+			<textarea placeholder="Maximum 500 characters." name="description" id="description" maxlength="500" rows="10" style="width: 50em;"></textarea>
+			<!-- and a way to submit it all -->
+			<input type="submit" value="Submit">
+		</form>
+	</body>
+</html>	
+		
