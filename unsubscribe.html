@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- an un-subscribe page for the WhXYte wedding Database
+    Created By Amanda Suydam, December 8, 2018 
+	Takes in an email and changes the associated person to 'Inactive' when used with unsubscribe.php -->
+<html>
+	<head>
+		<meta charset = "UTF-8">
+		<title> WhXYte Wedding Unsubscribe Form </title>
+		<script>
+			// it's a tiny script so it can just stay here
+			function validate() {
+				var em = document.forms["unsubscribe"]["email"].value;
+				if(em.length < 10) {
+					alert("Please enter a valid email");
+					return false;
+				}
+				if (em.search('@') == -1) {
+					alert("Please enter a valid email");
+					return false;
+				}
+			}
+		</script>
+	</head>
+	
+	<body>
+		<h1> Are you sure you want to unsubscribe? </h1>
+		<h3> You won't receive any future emails for the WhXYte Wedding Fashion and Gala.</h3>
+		<p> If you are a registered volunteer your account will remain active. Those who have purchased will still receive a reminder email before the event after unsubscribing. 
+			<form action="unsubscribe.php" onsubmit="return validate()" method="POST" id="unsubscribe">
+				<label for="email"><span style="color: #ff0000">*</span>Email:</label>
+				<input type="text" name="email" id="email" style="width: 30em;"><br><br>
+				<input type="submit" value="Submit">
+			</form>
+		</p>
+	</body>
+</html>
